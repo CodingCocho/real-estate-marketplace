@@ -2,6 +2,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import {BrowserRouter as Router, Routes, Route} from 'react-router-dom';
 import {ToastContainer} from 'react-toastify';
 import {Navbar} from '../components/Navbar';
+import {PrivateRouter} from '../components/PrivateRouter';
 import {Explore} from '../pages/Explore';
 import {ForgotPassword} from '../pages/ForgotPassword';
 import {Offers} from '../pages/Offers';
@@ -19,7 +20,7 @@ function App(): JSX.Element {
 
         {/* Hold the main container for each page */}
         <main
-        className='bg-base-200 flex items-center justify-center min-w-screen page'
+        className='bg-base-200 min-w-screen page'
         >
 
           {/* Hold the routes of the router*/}
@@ -39,11 +40,18 @@ function App(): JSX.Element {
             >
             </Route>
 
-            {/* Hold the route for the profile page */}
+            {/* Hold the protected route component*/}
             <Route 
-            element={<Signin/>}
+            element={<PrivateRouter/>}
             path='/profile'
             >
+
+              {/* Hold the outlet page to the profile */}
+              <Route 
+              element={<Profile/>}
+              path='/profile'
+              >
+              </Route>
             </Route>
 
             {/* Hold the route for the sign in page */}

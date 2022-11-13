@@ -1,18 +1,27 @@
+import {Auth, getAuth, signInWithEmailAndPassword, UserCredential} from 'firebase/auth'
 import React, {useState} from 'react';
-import {Link} from 'react-router-dom';
+import {Link, useNavigate} from 'react-router-dom';
 import {toast} from 'react-toastify';
-import {FormData} from '../interfaces/FormInterface';
+import {SignInFormData} from '../interfaces/FormInterface';
+import Background from '../assets/profile-background.jpg';
+import VisibilityIcon from '../assets/svg/visibilityIcon.svg';
 import validator from 'validator'
 
 export const Signin = (): JSX.Element =>
 {
 
   // Hold the state of the form data
-  const [formData, setFormData] = useState<FormData>(
+  const [formData, setFormData] = useState<SignInFormData>(
     {
     email: '',
     password: ''
   })
+
+  // Hold the state for password visibility
+  const [isPasswordVisible, setVisibility] = useState<boolean>(false);
+
+  // Hold the useNavigate hook
+  const navigate = useNavigate();
 
   // Component functions
 
@@ -22,7 +31,7 @@ export const Signin = (): JSX.Element =>
   @param e the form submission event
   @return none
   */
-  const signIn = (e: React.SyntheticEvent): void =>
+  const signIn = async (e: React.SyntheticEvent): Promise<void> =>
   {
 
     // Prevent page refresh
@@ -39,21 +48,37 @@ export const Signin = (): JSX.Element =>
     }
 
     // Verify the password length
-    if(password.length <= 6)
+    if(password.length < 6)
     {
       toast.error('Password must be at least 6 characters long.', {theme: "colored"});
       return;
     }
     
-    // Check if the user exists in the database
-
-
     // Log in the user
+    try
+    {
 
+      // Hold the authentication middleware 
+      const auth: Auth = getAuth();
+
+      // Hold the user's authenticated credentials
+      const userCredential: UserCredential = await signInWithEmailAndPassword(auth, formData.email, formData.password);
     
-    // Navigate the user to their profile
-    console.log(email);
-    console.log(password);
+      // Check if the credentials has a user
+      if(userCredential.user)
+      {
+
+        // Navigate back to the home page
+        navigate('/');
+      }
+    }
+
+    // Catch the error from the failed promise
+    catch(error)
+    {
+      toast.error('Invalid login email and password match does not exist.', {theme: "colored"});
+      return;
+    }
   }
 
   return(
@@ -61,8 +86,15 @@ export const Signin = (): JSX.Element =>
 
       {/* Hold the daisyui hero component */}
       <div 
-      className="hero"
+      className="hero h-full w-full" 
+      style={{ backgroundImage: `url(${Background})` }}
       >
+
+        {/* Hold the hero-overlay daisyui component for an added aesthetic */}
+        <div 
+        className="hero-overlay bg-opacity-60"
+        >
+        </div>
         <div 
         className="hero-content flex-col"
         >
@@ -72,7 +104,7 @@ export const Signin = (): JSX.Element =>
 
             {/* Hold form title */}
             <h1 
-            className="text-5xl font-bold"
+            className="text-5xl font-bold text-neutral-content"
             >
               Sign in
             </h1>
@@ -103,7 +135,7 @@ export const Signin = (): JSX.Element =>
                 <input 
                 className="input input-bordered" 
                 onChange={(e) => setFormData({...formData, email: e.target.value})}
-                placeholder="email" 
+                placeholder="Email" 
                 type="text"
                 value={formData.email} 
                 />
@@ -121,14 +153,28 @@ export const Signin = (): JSX.Element =>
                   </span>
                 </label>
 
-                {/* Hold the input for the user's password */}
-                <input 
-                className="input input-bordered"
-                onChange={(e) => setFormData({...formData, password: e.target.value})} 
-                placeholder="password" 
-                type="password" 
-                value={formData.password}
-                />
+                {/* Hold a custom flex container */}
+                <div
+                className='flex input input-bordered input-container'
+                >
+                  
+                  {/* Hold the input for the user's password */}
+                  <input 
+                  className="border-none outline-none active:outline-none"
+                  onChange={(e) => setFormData({...formData, password: e.target.value})} 
+                  placeholder="Password" 
+                  type={isPasswordVisible ? 'text' : 'password'} 
+                  value={formData.password}
+                  />
+
+                  {/* Hold the visibility icon */}
+                  <img 
+                  alt="visibility"
+                  className="relative top-[12px] h-fit w-fit cursor-pointer"
+                  onClick={() => setVisibility(!isPasswordVisible)}
+                  src={VisibilityIcon}  
+                  />
+                </div>
                 <label 
                 className="label"
                 >

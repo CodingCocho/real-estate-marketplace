@@ -23,7 +23,7 @@ export const Navbar = (): JSX.Element =>
         src={ExploreIcon}  
         />
         <span 
-        className="btm-nav-label text-base-content"
+        className="btm-nav-label text-base-content font-medium"
         >
           Explore
         </span>
@@ -37,7 +37,7 @@ export const Navbar = (): JSX.Element =>
         src={OfferIcon}  
         />
         <span 
-        className="btm-nav-label text-base-content"
+        className="btm-nav-label text-base-content font-medium"
         >
           Offer
         </span>
@@ -51,7 +51,7 @@ export const Navbar = (): JSX.Element =>
         src={PersonIcon}  
         />
         <span 
-        className="btm-nav-label text-base-content"
+        className="btm-nav-label text-base-content font-medium"
         >
           Profile
         </span>

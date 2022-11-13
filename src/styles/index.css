@@ -5,6 +5,7 @@
 *
 {
   box-sizing: border-box;
+  font-family: 'EB Garamond', serif;
   margin: 0px;
   padding: 0px;
 }
@@ -12,4 +13,10 @@
 .page
 {
   height: calc(100vh - 64px);
+}
+
+.input-container:focus-within
+{
+  outline: 2px solid hsla(var(--bc) / 0.2);
+  outline-offset: 2px;
 }
