@@ -56,7 +56,7 @@ export const Profile = (): JSX.Element =>
         >  
         </div>
         <div 
-        className="text-neutral-content h-full w-full p-4 max-w-7xl"
+        className="text-neutral-content h-full w-full py-8 px-12"
         >
           <div 
           className="flex w-full justify-between"
@@ -92,7 +92,7 @@ export const Profile = (): JSX.Element =>
             hasListings ?
             <>
               <p
-              className="text-[1.5em] mt-4"
+              className="text-[1.5em] mt-8"
               >
                 Your Listings
               </p>

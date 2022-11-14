@@ -1,3 +1,4 @@
+import {GoogleAuth} from '../components/GoogleAuth';
 import {Auth, getAuth, signInWithEmailAndPassword, UserCredential} from 'firebase/auth'
 import React, {useState} from 'react';
 import {Link, useNavigate} from 'react-router-dom';
@@ -214,6 +215,7 @@ export const Signin = (): JSX.Element =>
               </div>
             </div>
           </form>
+          <GoogleAuth />
         </div>
       </div>
     </>

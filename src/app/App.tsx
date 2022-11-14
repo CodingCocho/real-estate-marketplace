@@ -6,9 +6,11 @@ import {PrivateRouter} from '../components/PrivateRouter';
 import {Explore} from '../pages/Explore';
 import {ForgotPassword} from '../pages/ForgotPassword';
 import {Offers} from '../pages/Offers';
+import {OurMission} from '../pages/OurMission';
 import {Profile} from '../pages/Profile';
 import {Signin} from '../pages/Signin';
 import {Signup} from '../pages/Signup';
+
 
 
 function App(): JSX.Element {
@@ -72,6 +74,13 @@ function App(): JSX.Element {
             <Route 
             element={<Signup/>}
             path='/sign-up'
+            >
+            </Route>
+
+            {/* Hold the route for the mission */}
+            <Route
+            element={<OurMission />}
+            path='/our-mission'
             >
             </Route>
           </Routes>

@@ -1,3 +1,4 @@
+import {GoogleAuth} from '../components/GoogleAuth';
 import {Auth, createUserWithEmailAndPassword, getAuth, updateProfile, User, UserCredential} from 'firebase/auth';
 import {dataBase} from '../firebase.config';
 import {doc, setDoc, serverTimestamp} from 'firebase/firestore';
@@ -235,8 +236,8 @@ export const Signup = (): JSX.Element =>
               </div>
             </div>
           </form>
-        </div>
-        
+          <GoogleAuth />
+        </div>  
       </div>
     </>
   )
