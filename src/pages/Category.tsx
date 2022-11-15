@@ -4,16 +4,22 @@ import {Spinner} from '../components/Spinner';
 import {dataBase} from '../firebase.config';
 import {collection, CollectionReference, getDocs, limit, orderBy, Query, query, QuerySnapshot, startAfter, where} from 'firebase/firestore';
 import {useEffect, useState} from 'react';
+import {useParams} from 'react-router-dom';
 import {toast} from 'react-toastify';
 import Background from '../assets/profile-background.jpg';
 
-export const Offers = (): JSX.Element =>
+
+export const Category = (): JSX.Element =>
 {
+
   // Hold the state of the listings
   const [listings, setListings] = useState<any[] | null>(null);
 
   // Hold the loading state
   const [loading, setLoading] = useState<boolean>(true);
+
+  // Hold the useParams hook
+  const params = useParams();
 
   // On mount fetch the listings
   useEffect(() => {
@@ -42,7 +48,7 @@ export const Offers = (): JSX.Element =>
         const listingRef: CollectionReference = collection(dataBase, 'listings');
 
         // Set a query of the listings matching the corresponding type
-        const myQuery: Query<any> = query(listingRef, where('offer', '==', true), orderBy('timestamp', 'desc'), limit(10));
+        const myQuery: Query<any> = query(listingRef, where('type', '==', params.categoryName), orderBy('timestamp', 'desc'), limit(10));
 
         // Hold a snapshot of the query
         const querySnap: QuerySnapshot<any> = await getDocs(myQuery);
@@ -84,7 +90,7 @@ export const Offers = (): JSX.Element =>
     return <Spinner/>
   }
 
-  return(
+  return (
     <>
 
       {/* Hold the hero daisyui component */}
@@ -105,7 +111,7 @@ export const Offers = (): JSX.Element =>
           <p
           className='text-neutral-content text-[18px] sm:text-[24px] text-center block mt-4'
           >
-            OFFERS
+            PLACES FOR {params.categoryName?.toUpperCase()}
           </p>
 
           {/* Map out the listings from our state */}

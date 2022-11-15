@@ -134,7 +134,7 @@ export const Signin = (): JSX.Element =>
                 
                 {/* Hold the input for the user's email */}
                 <input 
-                className="input input-bordered" 
+                className="input input-bordered input-primary" 
                 onChange={(e) => setFormData({...formData, email: e.target.value})}
                 placeholder="Email" 
                 type="text"
@@ -156,7 +156,7 @@ export const Signin = (): JSX.Element =>
 
                 {/* Hold a custom flex container */}
                 <div
-                className='flex input input-bordered input-container'
+                className='flex input input-bordered input-container input-primary'
                 >
                   
                   {/* Hold the input for the user's password */}

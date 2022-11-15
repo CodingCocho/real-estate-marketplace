@@ -1,4 +1,4 @@
-import {FieldValue} from 'firebase/firestore'
+import {FieldValue} from 'firebase/firestore';
 
 export interface SignInFormData
 {
@@ -12,4 +12,43 @@ export interface SignUpFormData
   name: string,
   password?: string,
   timestamp?: FieldValue
+}
+
+export interface Listing
+{
+  bathrooms: number,
+  bedrooms: number,
+  discountedPrice: number,
+  furnished: boolean,
+  geolocation:
+  {
+    lat: number,
+    lng: number
+  }
+  // id: string,
+  imageUrls: string[],
+  // key: number,
+  location: string,
+  name: string,
+  offer: boolean,
+  parking: boolean,
+  regularPrice: number,
+  timestamp?: FieldValue,
+  type: string,
+  userRef: string
+}
+
+export interface ListingProperty
+{
+  bathrooms: number,
+  bedrooms: number,
+  discountedPrice: number,
+  id: string
+  images: string[],
+  key: number,
+  location: string,
+  offer: boolean,
+  name: string,
+  regularPrice: number,
+  type: string
 }

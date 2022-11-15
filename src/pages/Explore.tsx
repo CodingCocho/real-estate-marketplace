@@ -43,7 +43,7 @@ export const Explore = (): JSX.Element =>
             >
               <img 
               alt="rent"
-              className="w-full h-[15vw] mx-auto duration-300 hover:-translate-y-1 shadow-md cursor-pointer"
+              className="w-full h-[15vw] mx-auto shadow-md cursor-pointer"
               onClick={() => navigate('/category/rent')} 
               src={rentCategoryImage}
               />
@@ -60,13 +60,13 @@ export const Explore = (): JSX.Element =>
             >
               <img 
               alt="sale"
-              className="w-full h-[15vw] mx-auto duration-300 hover:-translate-y-1 shadow-md cursor-pointer" 
-              onClick={() => navigate('/category/buy')}
+              className="w-full h-[15vw] mx-auto shadow-md cursor-pointer" 
+              onClick={() => navigate('/category/sale')}
               src={sellCategoryImage} 
               />
               <p
               className="text-neutral-content text-2xl cursor-pointer w-fit mx-auto"
-              onClick={() => navigate('/category/buy')}
+              onClick={() => navigate('/category/sale')}
               >
                 Places for sale
               </p>

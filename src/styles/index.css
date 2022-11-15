@@ -17,6 +17,6 @@
 
 .input-container:focus-within
 {
-  outline: 2px solid hsla(var(--bc) / 0.2);
+  outline: 2px solid hsl(var(--p));
   outline-offset: 2px;
 }

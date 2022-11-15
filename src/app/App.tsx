@@ -1,10 +1,13 @@
-import 'react-toastify/dist/ReactToastify.css';
 import {BrowserRouter as Router, Routes, Route} from 'react-router-dom';
 import {ToastContainer} from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import {Navbar} from '../components/Navbar';
 import {PrivateRouter} from '../components/PrivateRouter';
+import {Category} from '../pages/Category';
+import {CreateListing} from '../pages/CreateListing';
 import {Explore} from '../pages/Explore';
 import {ForgotPassword} from '../pages/ForgotPassword';
+import {Listing} from '../pages/Listing';
 import {Offers} from '../pages/Offers';
 import {OurMission} from '../pages/OurMission';
 import {Profile} from '../pages/Profile';
@@ -56,6 +59,20 @@ function App(): JSX.Element {
               </Route>
             </Route>
 
+            {/* Hold the protected route component*/}
+            <Route 
+            element={<PrivateRouter/>}
+            path='/new-listing'
+            >
+
+              {/* Hold the outlet page to the listing form */}
+              <Route 
+              element={<CreateListing/>}
+              path='/new-listing'
+              >
+              </Route>
+            </Route>
+
             {/* Hold the route for the sign in page */}
             <Route 
             element={<Signin/>}
@@ -81,6 +98,20 @@ function App(): JSX.Element {
             <Route
             element={<OurMission />}
             path='/our-mission'
+            >
+            </Route>
+
+            {/* Hold the route for the listing category */}
+            <Route
+            element={<Category />}
+            path="/category/:categoryName"
+            >
+            </Route>
+
+            {/* Hold the route for the listing */}
+            <Route
+            element={<Listing />}
+            path="/category/:categoryName/:listingId"
             >
             </Route>
           </Routes>
