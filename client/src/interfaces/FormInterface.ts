@@ -26,7 +26,7 @@ export interface Listing
     lng: number
   }
   // id: string,
-  imageUrls: string[],
+  imageUrls: FileList | null,
   // key: number,
   location: string,
   name: string,

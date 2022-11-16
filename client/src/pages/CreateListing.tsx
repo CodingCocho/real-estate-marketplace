@@ -1,3 +1,4 @@
+import geocodingService from '../api/geocodingAPI';
 import {Spinner} from '../components/Spinner';
 import {Auth, getAuth, onAuthStateChanged} from 'firebase/auth';
 import {serverTimestamp} from 'firebase/firestore';
@@ -10,26 +11,29 @@ import Background from '../assets/profile-background.jpg';
 export const CreateListing = (): JSX.Element =>
 {
 
-  // Holst the state of listing data
+  // Hold error constant
+  const geocodingError = 'ZERO_RESULTS';
+
+  // Hold the state of listing data
   const [listingData, setListingData] = useState<Listing>(
     {
       bathrooms: 1,
       bedrooms: 1,
       discountedPrice: 0,
-      furnished: true,
+      furnished: false,
       geolocation:
       {
         lat: 0,
         lng: 0
       },
-      imageUrls: [],
+      imageUrls: null,
       location: '',
       name: '',
-      offer: true,
-      parking: true,
+      offer: false,
+      parking: false,
       regularPrice: 0,
       timestamp: undefined,
-      type: 'rent',
+      type: 'sale',
       userRef: ''
     }
   )
@@ -50,18 +54,17 @@ export const CreateListing = (): JSX.Element =>
   useEffect(() => {
     if(isMounted)
     {
-      
+
       // Check if the user has been authenticated 
       onAuthStateChanged(auth, (user) =>
       {
-        
+
         // Check if there is a user
         if(user)
         {
-          
+
           // Update the listing data with the user id and timestamp
           setListingData({...listingData, userRef: user.uid});
-          setListingData({...listingData, timestamp: serverTimestamp()})
         }
 
         // The user is not logged in and bypassed the private route component...
@@ -99,13 +102,41 @@ export const CreateListing = (): JSX.Element =>
   // Prevent page refresh
   e.preventDefault();
 
+  // Set the loading state to true
+  setLoading(true);
+
   // Valid discount check
   if(listingData.offer && listingData.discountedPrice >= listingData.regularPrice)
   {
-    toast.error('Please enter a valid discount.', {theme: 'colored'})
+    setLoading(false);
+    toast.error('Please enter a valid discount.', {theme: 'colored'});
+    return;
   }
 
+  // Check if there is image urls
+  if(listingData.imageUrls)
+  {
+    // Check if there is more than 6 images
+    if(listingData.imageUrls.length > 6)
+    {
+      setLoading(false);
+      toast.error('Only a max of 6 files are allowed.', {theme: 'colored'});
+      return;
+    }
+  }
+
+
   // Address geolocation check
+  const data = await geocodingService.getgeocodingResult(listingData.location);
+  if(data.status === geocodingError)
+  {
+    toast.error('Invalid address can not find location on map.', {theme: 'colored'});
+    setLoading(false);
+    return;
+  }
+
+
+  setLoading(false);
  }
 
   // Check if the authentication is loading and return the Spinner component
@@ -183,9 +214,10 @@ export const CreateListing = (): JSX.Element =>
 
                 {/* Hold the rent radio */}
                 <input   
-                checked 
+                defaultChecked={false}
                 className="radio radio-primary bg-neutral-content"
                 name="type"
+                onClick={() => setListingData({...listingData, type: 'rent'})}
                 type="radio"
                 />
               </div>
@@ -201,9 +233,11 @@ export const CreateListing = (): JSX.Element =>
                 </p>
 
                 {/* Hold the sale radio */}
-                <input   
+                <input
+                defaultChecked={true}   
                 className="radio radio-primary bg-neutral-content"
                 name="type" 
+                onClick={() => setListingData({...listingData, type: 'sale'})}
                 type="radio"
                 />
               </div>
@@ -226,7 +260,6 @@ export const CreateListing = (): JSX.Element =>
 
                 {/* Hold the bedrooms */}
                 <input   
-                checked 
                 className="input input-bordered input-primary text-neutral w-3/4"
                 min={1}
                 max={50}
@@ -250,7 +283,6 @@ export const CreateListing = (): JSX.Element =>
 
                 {/* Hold the bathrooms input */}
                 <input   
-                checked 
                 className="input input-bordered input-primary text-neutral w-3/4"
                 min={1}
                 max={50}
@@ -300,8 +332,8 @@ export const CreateListing = (): JSX.Element =>
 
                 {/* Hold the furnished toggle value */}
                 <input  
-                className="checkbox checkbox-primary bg-neutral-content bg-primary"
-                defaultChecked={true}
+                className="checkbox checkbox-primary bg-neutral-content"
+                defaultChecked={false}
                 name="furnished"
                 onChange={(e) => setListingData({...listingData, furnished:e.target.checked})} 
                 type="checkbox"
@@ -349,7 +381,7 @@ export const CreateListing = (): JSX.Element =>
                 {/* Hold the offer off checkbox*/}
                 <input   
                 className="checkbox checkbox-primary bg-neutral-content"
-                defaultChecked={true}
+                defaultChecked={false}
                 name="type"
                 onChange={(e) => setListingData({...listingData, offer:e.target.checked})} 
                 type="checkbox"
@@ -379,7 +411,7 @@ export const CreateListing = (): JSX.Element =>
                     onChange={(e) => setListingData({...listingData, discountedPrice: parseFloat(e.target.value)})}
                     required
                     type="number"
-                    value={listingData.discountedPrice}
+                    value={listingData.discountedPrice.toString()}
                     />
                   </div>
                 </>
@@ -405,7 +437,7 @@ export const CreateListing = (): JSX.Element =>
               onChange={(e) => setListingData({...listingData, regularPrice: parseFloat(e.target.value)})} 
               required
               type="number"
-              value={listingData.regularPrice}
+              value={listingData.regularPrice.toString()}
               />
             </div>
 
@@ -426,6 +458,7 @@ export const CreateListing = (): JSX.Element =>
               id="images"
               max={6}
               multiple
+              onChange={(e) => setListingData({...listingData, imageUrls: e.target.files})}
               required
               type="file"
               />

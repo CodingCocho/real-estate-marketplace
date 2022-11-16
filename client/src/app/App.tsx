@@ -59,18 +59,11 @@ function App(): JSX.Element {
               </Route>
             </Route>
 
-            {/* Hold the protected route component*/}
+            {/* Hold the outlet page to the listing form */}
             <Route 
-            element={<PrivateRouter/>}
+            element={<CreateListing/>}
             path='/new-listing'
             >
-
-              {/* Hold the outlet page to the listing form */}
-              <Route 
-              element={<CreateListing/>}
-              path='/new-listing'
-              >
-              </Route>
             </Route>
 
             {/* Hold the route for the sign in page */}
