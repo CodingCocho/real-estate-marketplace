@@ -125,7 +125,6 @@ export const CreateListing = (): JSX.Element =>
     }
   }
 
-
   // Address geolocation check
   const data = await geocodingService.getgeocodingResult(listingData.location);
   if(data.status === geocodingError)
