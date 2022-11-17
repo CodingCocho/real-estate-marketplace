@@ -1,11 +1,14 @@
 import geocodingService from '../api/geocodingAPI';
 import {Spinner} from '../components/Spinner';
 import {Auth, getAuth, onAuthStateChanged} from 'firebase/auth';
+import {dataBase} from '../firebase.config';
 import {serverTimestamp} from 'firebase/firestore';
+import {getDownloadURL, getStorage, ref, uploadBytesResumable} from 'firebase/storage';
 import {Listing} from '../interfaces/FormInterface';
 import React, {useEffect, useRef, useState} from 'react'
 import {useNavigate} from 'react-router-dom';
 import {toast} from 'react-toastify';
+import {v4 as uuidv4} from 'uuid';
 import Background from '../assets/profile-background.jpg';
 
 export const CreateListing = (): JSX.Element =>
@@ -37,6 +40,8 @@ export const CreateListing = (): JSX.Element =>
       userRef: ''
     }
   )
+
+  const [images, setImages] = useState<any>({})
 
   // Hold the loading state
   const [loading, setLoading] = useState<boolean>(true);
@@ -116,6 +121,7 @@ export const CreateListing = (): JSX.Element =>
   // Check if there is image urls
   if(listingData.imageUrls)
   {
+
     // Check if there is more than 6 images
     if(listingData.imageUrls.length > 6)
     {
@@ -127,13 +133,79 @@ export const CreateListing = (): JSX.Element =>
 
   // Address geolocation check
   const data = await geocodingService.getgeocodingResult(listingData.location);
-  if(data.status === geocodingError)
+  
+  // Check for geocoding error
+  if(data.status === geocodingError || !data.results[0].formatted_address)
   {
     toast.error('Invalid address can not find location on map.', {theme: 'colored'});
     setLoading(false);
     return;
   }
 
+  // Set the geolocation and location data field
+  setListingData({...listingData, geolocation: 
+    {
+      lat: data.results[0]?.geometry.location.lat ?? 0,
+      lng: data.results[0]?.geometry.location.lng ?? 0
+    },
+    location: data.results[0].formatted_address
+  })
+
+  // Add images using firebase middleware
+  const storeImage = async (image: any) => 
+  {
+    return new Promise((resolve, reject) => 
+    {
+      const storage = getStorage()
+      if(auth.currentUser)
+      {
+        const fileName = `${auth.currentUser.uid}-${image.name}-${uuidv4()}`;
+        
+        const storageRef = ref(storage, 'images/' + fileName);
+
+        const uploadTask = uploadBytesResumable(storageRef, image);
+
+        uploadTask.on(
+          'state_changed',
+          (snapshot) => 
+          {
+            const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+            console.log('Upload is ' + progress + '% done');
+            switch (snapshot.state) 
+            {
+              case 'paused':
+                console.log('Upload is paused');
+                break;
+              case 'running':
+                console.log('Upload is running');
+                break;
+              default:
+                break;
+            }
+          },
+          (error) => 
+          {
+            reject(error)
+          },
+          () => 
+          {
+            getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => 
+            {
+              resolve(downloadURL)
+            })
+          }
+      )}
+    })
+  }
+
+  const imgUrls = await Promise.all(
+    [...images].map((image) => storeImage(image))).catch(() => 
+    {
+    setLoading(false)
+    toast.error('Images not uploaded')
+    return
+    })
+  console.log(imgUrls);
 
   setLoading(false);
  }
@@ -452,12 +524,12 @@ export const CreateListing = (): JSX.Element =>
 
               {/* Hold the input for the images */}
               <input 
-              accept=".jpg,.png,.jpeg"
+              accept=".jpg,.png,.jpeg, .avif,.webp"
               className="file-input file-input-bordered file-input-primary text-neutral w-full"
               id="images"
               max={6}
               multiple
-              onChange={(e) => setListingData({...listingData, imageUrls: e.target.files})}
+              onChange={(e) => setImages(e.target.files)}
               required
               type="file"
               />
