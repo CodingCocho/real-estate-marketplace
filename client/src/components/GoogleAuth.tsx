@@ -98,7 +98,7 @@ export const GoogleAuth = (): JSX.Element =>
           src={GoogleLogo} 
           />
         </div>
-    </div>
+      </div>
     </>
   )
 }

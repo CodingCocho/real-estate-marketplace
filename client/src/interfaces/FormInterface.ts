@@ -14,7 +14,7 @@ export interface SignUpFormData
   timestamp?: FieldValue
 }
 
-export interface Listing
+export interface ListingFirestore
 {
   bathrooms: number,
   bedrooms: number,

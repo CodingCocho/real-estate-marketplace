@@ -2,9 +2,9 @@ import geocodingService from '../api/geocodingAPI';
 import {Spinner} from '../components/Spinner';
 import {Auth, getAuth, onAuthStateChanged} from 'firebase/auth';
 import {dataBase} from '../firebase.config';
-import {serverTimestamp} from 'firebase/firestore';
+import {addDoc, collection, serverTimestamp} from 'firebase/firestore';
 import {getDownloadURL, getStorage, ref, uploadBytesResumable} from 'firebase/storage';
-import {Listing} from '../interfaces/FormInterface';
+import {ListingFirestore} from '../interfaces/FormInterface';
 import React, {useEffect, useRef, useState} from 'react'
 import {useNavigate} from 'react-router-dom';
 import {toast} from 'react-toastify';
@@ -18,7 +18,7 @@ export const CreateListing = (): JSX.Element =>
   const geocodingError = 'ZERO_RESULTS';
 
   // Hold the state of listing data
-  const [listingData, setListingData] = useState<Listing>(
+  const [listingData, setListingData] = useState<ListingFirestore>(
     {
       bathrooms: 1,
       bedrooms: 1,
@@ -40,7 +40,8 @@ export const CreateListing = (): JSX.Element =>
       userRef: ''
     }
   )
-
+  
+  // Hold the state of images from the file input
   const [images, setImages] = useState<any>({})
 
   // Hold the loading state
@@ -133,7 +134,7 @@ export const CreateListing = (): JSX.Element =>
 
   // Address geolocation check
   const data = await geocodingService.getgeocodingResult(listingData.location);
-  
+
   // Check for geocoding error
   if(data.status === geocodingError || !data.results[0].formatted_address)
   {
@@ -143,13 +144,17 @@ export const CreateListing = (): JSX.Element =>
   }
 
   // Set the geolocation and location data field
-  setListingData({...listingData, geolocation: 
-    {
-      lat: data.results[0]?.geometry.location.lat ?? 0,
-      lng: data.results[0]?.geometry.location.lng ?? 0
-    },
-    location: data.results[0].formatted_address
-  })
+  let newGeolocation = 
+  {
+    lat: data.results[0]?.geometry.location.lat ?? 0,
+    lng: data.results[0]?.geometry.location.lng ?? 0 
+  }
+
+  setListingData({...listingData, geolocation: {
+    lat: parseFloat(newGeolocation.lat),
+    lng: parseFloat(newGeolocation.lng)
+  }, location: data.results[0].formatted_address})
+
 
   // Add images using firebase middleware
   const storeImage = async (image: any) => 
@@ -202,12 +207,23 @@ export const CreateListing = (): JSX.Element =>
     [...images].map((image) => storeImage(image))).catch(() => 
     {
     setLoading(false)
-    toast.error('Images not uploaded')
+    toast.error('Images not uploaded', {theme: 'colored'})
     return
-    })
-  console.log(imgUrls);
+    }
+  )
+  
+  const listingDataCopy: ListingFirestore =
+  {
+    ...listingData,
+    imageUrls: imgUrls,
+    geolocation: newGeolocation,
+    timestamp: serverTimestamp()
+  }
 
+  const docRef = await  addDoc(collection(dataBase, 'listings'), listingDataCopy);
   setLoading(false);
+  toast.success('Listing saved.', {theme: 'colored'});
+  navigate(`/category/${listingData.type}/${docRef.id}`);
  }
 
   // Check if the authentication is loading and return the Spinner component
@@ -331,7 +347,7 @@ export const CreateListing = (): JSX.Element =>
 
                 {/* Hold the bedrooms */}
                 <input   
-                className="input input-bordered input-primary text-neutral w-3/4"
+                className="input input-bordered input-primary text-neutral w-full"
                 min={1}
                 max={50}
                 name="bedrooms"
@@ -354,7 +370,7 @@ export const CreateListing = (): JSX.Element =>
 
                 {/* Hold the bathrooms input */}
                 <input   
-                className="input input-bordered input-primary text-neutral w-3/4"
+                className="input input-bordered input-primary text-neutral w-full"
                 min={1}
                 max={50}
                 name="bathrooms"

@@ -4,6 +4,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import {Navbar} from '../components/Navbar';
 import {PrivateRouter} from '../components/PrivateRouter';
 import {Category} from '../pages/Category';
+import {Contact} from '../pages/Contact';
 import {CreateListing} from '../pages/CreateListing';
 import {Explore} from '../pages/Explore';
 import {ForgotPassword} from '../pages/ForgotPassword';
@@ -13,8 +14,6 @@ import {OurMission} from '../pages/OurMission';
 import {Profile} from '../pages/Profile';
 import {Signin} from '../pages/Signin';
 import {Signup} from '../pages/Signup';
-
-
 
 function App(): JSX.Element {
   return (
@@ -105,6 +104,13 @@ function App(): JSX.Element {
             <Route
             element={<Listing />}
             path="/category/:categoryName/:listingId"
+            >
+            </Route>
+
+            {/* Hold the route for the contact page */}
+            <Route
+            element={<Contact />}
+            path="/contact/:userId"
             >
             </Route>
           </Routes>
