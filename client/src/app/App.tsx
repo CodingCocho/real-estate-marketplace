@@ -6,6 +6,7 @@ import {PrivateRouter} from '../components/PrivateRouter';
 import {Category} from '../pages/Category';
 import {Contact} from '../pages/Contact';
 import {CreateListing} from '../pages/CreateListing';
+import {EditListing} from '../pages/EditListing';
 import {Explore} from '../pages/Explore';
 import {ForgotPassword} from '../pages/ForgotPassword';
 import {Listing} from '../pages/Listing';
@@ -111,6 +112,13 @@ function App(): JSX.Element {
             <Route
             element={<Contact />}
             path="/contact/:userId"
+            >
+            </Route>
+            
+            {/* Hold the route for the contact page */}
+            <Route
+            element={<EditListing />}
+            path="/edit/:listingId"
             >
             </Route>
           </Routes>

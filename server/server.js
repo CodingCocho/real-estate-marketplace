@@ -16,13 +16,24 @@ app.use(express.urlencoded({extended: false}))
 // Enable cors
 app.use(cors());
 
+// Use the route for the geocoding API
 app.use('/api/geocoding', require('./routes/geocodingRoute'));
 
-app.get('/', (req, res) => 
+// Serve the client 
+if(process.env.NODE_ENV === 'production')
 {
-    res.status(200).json({message: 'Welcome to Cocho Real Estate'})
-})
+    app.use(express.static(path.join(__dirname, '../client/build')))
 
+    app.get('*', (req, res) => 
+    {
+        res.sendFile(path.join(__dirname, '../client/build/index.html'))
+    })
+
+    app.get('/', (req, res) => 
+    {
+        res.status(200).json({message: 'Welcome to my Real Estate MarketPlace'})
+    })
+}
 
 // Run Express.js server on port 5000
 app.listen(PORT, () => console.log(`Server started on port ${PORT}`));

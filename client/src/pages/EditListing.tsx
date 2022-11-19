@@ -2,16 +2,15 @@ import geocodingService from '../api/geocodingAPI';
 import {Spinner} from '../components/Spinner';
 import {Auth, getAuth, onAuthStateChanged} from 'firebase/auth';
 import {dataBase} from '../firebase.config';
-import {addDoc, collection, serverTimestamp} from 'firebase/firestore';
+import {doc, getDoc, serverTimestamp, updateDoc} from 'firebase/firestore';
 import {getDownloadURL, getStorage, ref, uploadBytesResumable} from 'firebase/storage';
-import {ListingFirestore} from '../interfaces/FormInterface';
 import React, {useEffect, useRef, useState} from 'react'
-import {useNavigate} from 'react-router-dom';
+import {useNavigate, useParams} from 'react-router-dom';
 import {toast} from 'react-toastify';
 import {v4 as uuidv4} from 'uuid';
 import Background from '../assets/profile-background.jpg';
 
-export const CreateListing = (): JSX.Element =>
+export const EditListing = (): JSX.Element =>
 {
 
   // Hold error constant
@@ -40,6 +39,10 @@ export const CreateListing = (): JSX.Element =>
       userRef: ''
     }
   )
+
+  // Hold the listing document
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const [listing, setListing] = useState<any | null>(null);
   
   // Hold the state of images from the file input
   const [images, setImages] = useState<any>({})
@@ -52,6 +55,9 @@ export const CreateListing = (): JSX.Element =>
 
   // Hold the useNavigate hook
   const navigate = useNavigate();
+
+  // Hold the useParams hook
+  const params = useParams();
 
   // Hold the reference to the mounting status of the component
   const isMounted = useRef<boolean>(true);
@@ -71,6 +77,9 @@ export const CreateListing = (): JSX.Element =>
 
           // Update the listing data with the user id and timestamp
           setListingData({...listingData, userRef: user.uid});
+
+          // Fetch the listing data
+          fetchListing();
         }
 
         // The user is not logged in and bypassed the private route component...
@@ -97,12 +106,54 @@ export const CreateListing = (): JSX.Element =>
   // Component functions
 
   /*
+  Fetch the listing that is going to be edited using the
+  Firebase Firestore middleware.
+  @param none
+  @return none
+  */
+  const fetchListing = async(): Response<void> =>
+  {
+
+    // Check if there is a listingId
+    if(params.listingId)
+    {
+
+      // Hold the document reference of the listing
+      const docRef = doc(dataBase, 'listings', params.listingId);
+
+      // Hold the snapshot of the document reference
+      const docSnap = await getDoc(docRef);
+
+      // Check if the snapshot exists
+      if (docSnap.exists()) 
+      {
+
+        // Set the listing using the snapshot data
+        setListing(docSnap.data());
+
+        // Set the listing data using the snapshot data
+        setListingData({ ...docSnap.data()});
+
+        // Set the loading state to false
+        setLoading(false);
+      } 
+
+      // Else return to explore page
+      else 
+      {
+        navigate('/')
+        toast.error('Listing does not exist', {theme: 'colored'})
+      }
+    }
+  }
+
+  /*
   Validate the form data and using the firebase middleware add the 
   listing to the firestore database.
   @param none
   @return none
   */
- const createListing = async(e: React.SyntheticEvent): Promise<void> =>
+ const editListing = async(e: React.SyntheticEvent): Promise<void> =>
  {
 
   // Prevent page refresh
@@ -150,18 +201,13 @@ export const CreateListing = (): JSX.Element =>
     lng: data.results[0]?.geometry.location.lng ?? 0 
   }
 
-  // Set the listing data with the geolocation and formatted address
   setListingData({...listingData, geolocation: {
     lat: parseFloat(newGeolocation.lat),
     lng: parseFloat(newGeolocation.lng)
   }, location: data.results[0].formatted_address})
 
 
-  /*
-  Add images using firebase middleware
-  @param image the image link
-  @return none
-  */
+  // Add images using firebase middleware
   const storeImage = async (image: any) => 
   {
     return new Promise((resolve, reject) => 
@@ -208,7 +254,7 @@ export const CreateListing = (): JSX.Element =>
     })
   }
 
-  // Hold the image urls after uploading them to Firebase Storage middleware
+  // Hold the image urls
   const imgUrls = await Promise.all(
     [...images].map((image) => storeImage(image))).catch(() => 
     {
@@ -219,7 +265,7 @@ export const CreateListing = (): JSX.Element =>
   )
   
   // Hold a copy of the listing data
-  const listingDataCopy: ListingFirestore =
+  const listingDataCopy: any =
   {
     ...listingData,
     imageUrls: imgUrls,
@@ -227,17 +273,28 @@ export const CreateListing = (): JSX.Element =>
     timestamp: serverTimestamp()
   }
 
-  // Hold a reference to added document 
-  const docRef = await  addDoc(collection(dataBase, 'listings'), listingDataCopy);
-  
-  // Set loading to false
+  // Hold the document reference
+  let docRef: any ;
+
+  // Check if there is a listingId
+  if(params.listingId)
+  {
+
+    // Hold the reference of the listing
+    docRef = doc(dataBase, 'listings', params.listingId);
+
+    // Update the document using the Firebase Firestore middleware
+    await updateDoc(docRef, listingDataCopy);
+  }
+
+  // Set the loading state to false
   setLoading(false);
 
-  // Send a message to the user that the listing was saved
+  // Send a success message to the user
   toast.success('Listing saved.', {theme: 'colored'});
 
-  // Navigate to the listing's page
-  navigate(`/category/${listingData.type}/${docRef.id}`);
+  // Navigate to listing page
+  navigate(`/category/${listingData.type}/${docRef!.id}`);
  }
 
   // Check if the authentication is loading and return the Spinner component
@@ -265,12 +322,12 @@ export const CreateListing = (): JSX.Element =>
         >
           <form 
           className="p-4 h-full w-full"
-          onSubmit={createListing}
+          onSubmit={editListing}
           >
             <p
             className="block text-center text-[18px]"
             >
-              NEW LISTING
+              EDIT LISTING
             </p>
 
             {/* Hold the form element for property name */}
@@ -315,7 +372,7 @@ export const CreateListing = (): JSX.Element =>
 
                 {/* Hold the rent radio */}
                 <input   
-                defaultChecked={false}
+                checked={listingData.type === 'rent'}
                 className="radio radio-primary bg-neutral-content"
                 name="type"
                 onClick={() => setListingData({...listingData, type: 'rent'})}
@@ -335,7 +392,7 @@ export const CreateListing = (): JSX.Element =>
 
                 {/* Hold the sale radio */}
                 <input
-                defaultChecked={true}   
+                checked={listingData.type === 'sale'}   
                 className="radio radio-primary bg-neutral-content"
                 name="type" 
                 onClick={() => setListingData({...listingData, type: 'sale'})}
@@ -414,7 +471,7 @@ export const CreateListing = (): JSX.Element =>
                 {/* Hold the parking toggle value */}
                 <input   
                 className="checkbox checkbox-primary bg-neutral-content"
-                defaultChecked={false}
+                checked={listingData.parking}
                 name="parking" 
                 onChange={(e) => setListingData({...listingData, parking:e.target.checked})}
                 type="checkbox"
@@ -434,7 +491,7 @@ export const CreateListing = (): JSX.Element =>
                 {/* Hold the furnished toggle value */}
                 <input  
                 className="checkbox checkbox-primary bg-neutral-content"
-                defaultChecked={false}
+                checked={listingData.furnished}
                 name="furnished"
                 onChange={(e) => setListingData({...listingData, furnished:e.target.checked})} 
                 type="checkbox"
@@ -482,7 +539,7 @@ export const CreateListing = (): JSX.Element =>
                 {/* Hold the offer off checkbox*/}
                 <input   
                 className="checkbox checkbox-primary bg-neutral-content"
-                defaultChecked={false}
+                checked={listingData.offer}
                 name="type"
                 onChange={(e) => setListingData({...listingData, offer:e.target.checked})} 
                 type="checkbox"
@@ -569,7 +626,7 @@ export const CreateListing = (): JSX.Element =>
             className="btn btn-primary mx-auto block mt-6"
             type="submit"
             >
-              SUBMIT NEW LISTING
+              SUBMIT EDIT
             </button>
           </form>
         </div>

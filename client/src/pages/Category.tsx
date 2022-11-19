@@ -2,7 +2,7 @@ import {ListingItem} from '../components/ListingItem';
 import {Logo} from '../components/Logo';
 import {Spinner} from '../components/Spinner';
 import {dataBase} from '../firebase.config';
-import {collection, CollectionReference, getDocs, limit, orderBy, Query, query, QuerySnapshot, startAfter, where} from 'firebase/firestore';
+import {collection, CollectionReference, getDocs, orderBy, Query, query, QuerySnapshot, where} from 'firebase/firestore';
 import {useEffect, useState} from 'react';
 import {useParams} from 'react-router-dom';
 import {toast} from 'react-toastify';
@@ -48,7 +48,7 @@ export const Category = (): JSX.Element =>
         const listingRef: CollectionReference = collection(dataBase, 'listings');
 
         // Set a query of the listings matching the corresponding type
-        const myQuery: Query<any> = query(listingRef, where('type', '==', params.categoryName), orderBy('timestamp', 'desc'), limit(10));
+        const myQuery: Query<any> = query(listingRef, where('type', '==', params.categoryName), orderBy('timestamp', 'desc'));
 
         // Hold a snapshot of the query
         const querySnap: QuerySnapshot<any> = await getDocs(myQuery);

@@ -18,7 +18,7 @@ export const ListingItem = (props: ListingProperty): JSX.Element =>
 
       {/* Hold the container for the ListingItem component */}
       <div 
-      className="flex h-auto sm:h-[250px] xl:h-[450px] mt-4 items-center"
+      className="flex h-auto sm:h-[250px] xl:h-[400px] mt-4 items-center"
       >
 
         {/* Hold the image of the property */}

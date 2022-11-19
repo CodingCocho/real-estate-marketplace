@@ -20,3 +20,16 @@
   outline: 2px solid hsl(var(--p));
   outline-offset: 2px;
 }
+
+p
+{
+  cursor: default;
+}
+
+.explore-slider
+{
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+  width: calc(100vw-96px);
+}

@@ -1,3 +1,4 @@
+import {ExploreSlider} from '../components/ExploreSlider'
 import {Logo} from '../components/Logo';
 import {useNavigate} from 'react-router-dom';
 import rentCategoryImage from '../assets/jpg/rentCategoryImage.jpg';
@@ -26,15 +27,23 @@ export const Explore = (): JSX.Element =>
         >
         </div>
         <div 
-        className="h-full w-full py-8 px-12"
+        className="h-full w-full"
         >
+          <div 
+          className="pl-[5vw] pt-8"
+          id="row"
+          >
 
-          {/* Hold the Logo component */}
-          <Logo/>
+            {/* Hold the Logo component */}
+            <Logo/>
+          </div>
+
+          {/* Hold the ExploreSlider component */}
+          <ExploreSlider/>
 
           {/* Hold a grid container for the real estate categories */}
           <div
-          className="grid gap-x-4 md:gap-x-24 grid-cols-2 mt-8 justify-between" 
+          className="grid gap-x-4 md:gap-x-24 grid-cols-2 mt-8 justify-between w-[90vw] mx-auto" 
           id="container"
           >
             <div
