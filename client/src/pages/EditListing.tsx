@@ -111,7 +111,7 @@ export const EditListing = (): JSX.Element =>
   @param none
   @return none
   */
-  const fetchListing = async(): Response<void> =>
+  const fetchListing = async(): Promise<void> =>
   {
 
     // Check if there is a listingId
