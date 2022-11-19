@@ -67,7 +67,6 @@ export const GoogleAuth = (): JSX.Element =>
     // Catch the error from the failed promise
     catch(error)
     {
-      console.log(error);
       toast.error('Could not authorize with Google', {theme: 'colored'});
       return;
     }
